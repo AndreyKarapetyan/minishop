@@ -10,7 +10,15 @@
         "outputPath": "dist/apps/minishop",
         "main": "apps/minishop/src/main.ts",
         "tsConfig": "apps/minishop/tsconfig.app.json",
-        "assets": ["apps/minishop/src/assets"]
+        "assets": ["apps/minishop/src/assets"],
+        "tsPlugins": [
+          {
+            "name": "@nestjs/swagger/plugin",
+            "options": {
+              "classValidatorShim": true
+            }
+          }
+        ]
       },
       "configurations": {
         "production": {
