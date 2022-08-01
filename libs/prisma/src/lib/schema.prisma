@@ -1,0 +1,32 @@
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider        = "prisma-client-js"
+  binaryTargets   = ["native"]
+}
+
+enum UserRole {
+  Seller
+  Buyer
+}
+
+model User {
+  id                Int         @id       @default(autoincrement())
+  username          String
+  password          String
+  deposit           Int
+  role              UserRole
+  products          Product[]
+}
+
+model Product {
+  id                Int         @id       @default(autoincrement())
+  productName       String
+  amountAvailable   Int
+  cost              Int
+  seller            User                  @relation(fields: [sellerId], references: [id])
+  sellerId          Int
+}
