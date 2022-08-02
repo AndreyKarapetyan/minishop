@@ -15,7 +15,10 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "@minishop/prisma": ["libs/prisma/src/index.ts"]
+      "@minishop/auth/*": ["libs/auth/src/lib/*"],
+      "@minishop/common/*": ["libs/common/src/lib/*"],
+      "@minishop/prisma/*": ["libs/prisma/src/lib/*"],
+      "@minishop/user/*": ["libs/user/src/lib/*"]
     }
   },
   "exclude": ["node_modules", "tmp"]

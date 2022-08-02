@@ -2,7 +2,10 @@
   "$schema": "./node_modules/nx/schemas/workspace-schema.json",
   "version": 2,
   "projects": {
+    "auth": "libs/auth",
+    "common": "libs/common",
     "minishop": "apps/minishop",
-    "prisma": "libs/prisma"
+    "prisma": "libs/prisma",
+    "user": "libs/user"
   }
 }

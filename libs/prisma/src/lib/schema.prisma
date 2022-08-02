@@ -15,9 +15,9 @@ enum UserRole {
 
 model User {
   id                Int         @id       @default(autoincrement())
-  username          String
+  username          String      @unique
   password          String
-  deposit           Int
+  deposit           Int                   @default(0)
   role              UserRole
   products          Product[]
 }
@@ -29,4 +29,11 @@ model Product {
   cost              Int
   seller            User                  @relation(fields: [sellerId], references: [id])
   sellerId          Int
+}
+
+model Session {
+  id                String      @id
+  sid               String      @unique
+  data              String      @db.Text
+  expiresAt         DateTime
 }
