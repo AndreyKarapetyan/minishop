@@ -1,7 +1,6 @@
 import { Module } from '@nestjs/common';
 import { PassportModule } from '@nestjs/passport';
 import { UserModule } from '@minishop/user/user.module';
-import { AuthService } from './auth.service';
 import { SessionSerializer } from './session.serializer';
 import { CommonModule } from '@minishop/common/common.module';
 
@@ -11,7 +10,7 @@ import { CommonModule } from '@minishop/common/common.module';
     CommonModule,
     PassportModule.register({ session: true }),
   ],
-  providers: [AuthService, SessionSerializer],
-  exports: [AuthService]
+  providers: [SessionSerializer],
+  exports: [],
 })
 export class AuthModule {}
