@@ -1,11 +1,11 @@
 import { AuthenticationGuard } from '@minishop/auth/guards/auth.guard';
-import { CurrentUser } from '@minishop/auth/decorators/user.decorator';
+import { CurrentUser } from '../decorators/user.decorator';
 import { Request } from 'express';
 import { User } from '@prisma/client';
-import { UserLoginDto } from '@minishop/common/dtos/input/user/user-login.dto';
+import { UserLoginDto } from '@minishop/common/dtos/user/user-login.dto';
 import { UserService } from '@minishop/user/user.service';
-import { UserSignupDto } from '@minishop/common/dtos/input/user/user-signup.dto';
-import { UserUpdateDto } from '@minishop/common/dtos/input/user/user-update.dto';
+import { UserSignupDto } from '@minishop/common/dtos/user/user-signup.dto';
+import { UserUpdateDto } from '@minishop/common/dtos/user/user-update.dto';
 import {
   Body,
   Controller,
@@ -70,8 +70,8 @@ export class UserController {
         throw new NotAcceptableException('This username is already taken');
       }
     }
-    await this.userService.updateUser(user.id, userData);
-    return;
+    const updatedUser = await this.userService.updateUser(user.id, userData);
+    return updatedUser;
   }
 
   @UseGuards(AuthenticationGuard)

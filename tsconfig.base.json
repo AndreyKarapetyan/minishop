@@ -18,6 +18,7 @@
       "@minishop/auth/*": ["libs/auth/src/lib/*"],
       "@minishop/common/*": ["libs/common/src/lib/*"],
       "@minishop/prisma/*": ["libs/prisma/src/lib/*"],
+      "@minishop/product/*": ["libs/product/src/lib/*"],
       "@minishop/user/*": ["libs/user/src/lib/*"]
     }
   },

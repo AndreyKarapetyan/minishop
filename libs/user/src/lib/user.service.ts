@@ -1,5 +1,5 @@
-import { UserUpdateDto } from '@minishop/common/dtos/input/user/user-update.dto';
-import { UserSignupDto } from '@minishop/common/dtos/input/user/user-signup.dto';
+import { UserUpdateDto } from '@minishop/common/dtos/user/user-update.dto';
+import { UserSignupDto } from '@minishop/common/dtos/user/user-signup.dto';
 import { PrismaService } from '@minishop/prisma/prisma.service';
 import { Injectable } from '@nestjs/common';
 import { User } from '@prisma/client';
@@ -39,18 +39,20 @@ export class UserService {
     return null;
   }
 
-  async updateUser(id: number, userData: UserUpdateDto): Promise<void> {
+  async updateUser(id: number, userData: UserUpdateDto): Promise<User> {
     let hashedPassword: string;
     if (userData.password) {
       hashedPassword = await hash(userData.password, this.saltOrRounds);
     }
-    await this.prisma.user.update({
+    const updatedUser = await this.prisma.user.update({
       where: { id },
       data: {
         ...userData,
         password: hashedPassword,
       },
     });
+    delete updatedUser.password;
+    return updatedUser;
   }
 
   async getNumOfSessions(userId: number): Promise<number> {

@@ -6,6 +6,7 @@
     "common": "libs/common",
     "minishop": "apps/minishop",
     "prisma": "libs/prisma",
+    "product": "libs/product",
     "user": "libs/user"
   }
 }
