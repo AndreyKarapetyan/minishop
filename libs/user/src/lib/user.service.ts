@@ -4,6 +4,7 @@ import { PrismaService } from '@minishop/prisma/prisma.service';
 import { Injectable } from '@nestjs/common';
 import { User } from '@prisma/client';
 import { compare, hash } from 'bcrypt';
+import { DepositDto } from '@minishop/common/dtos/deposit';
 
 @Injectable()
 export class UserService {
@@ -21,12 +22,14 @@ export class UserService {
 
   async createUser(userData: UserSignupDto): Promise<User> {
     const hashedPassword = await hash(userData.password, this.saltOrRounds);
-    return this.prisma.user.create({
+    const user = await this.prisma.user.create({
       data: {
         ...userData,
         password: hashedPassword,
       },
     });
+    delete user.password;
+    return user;
   }
 
   async validateUser(username: string, password: string): Promise<User> {
@@ -39,7 +42,10 @@ export class UserService {
     return null;
   }
 
-  async updateUser(id: number, userData: UserUpdateDto): Promise<User> {
+  async updateUser(
+    id: number,
+    userData: Partial<UserUpdateDto & DepositDto>
+  ): Promise<User> {
     let hashedPassword: string;
     if (userData.password) {
       hashedPassword = await hash(userData.password, this.saltOrRounds);

@@ -1,7 +1,10 @@
 import { AuthenticationGuard } from '@minishop/auth/guards/auth.guard';
 import { CurrentUser } from '../decorators/user.decorator';
+import { DepositDto } from '@minishop/common/dtos/deposit';
 import { Request } from 'express';
-import { User } from '@prisma/client';
+import { Roles } from '../decorators/role.decorator';
+import { RolesGuard } from '@minishop/auth/guards/role.guard';
+import { User, UserRole } from '@prisma/client';
 import { UserLoginDto } from '@minishop/common/dtos/user/user-login.dto';
 import { UserService } from '@minishop/user/user.service';
 import { UserSignupDto } from '@minishop/common/dtos/user/user-signup.dto';
@@ -33,7 +36,7 @@ export class UserController {
     }
     const user = await this.userService.createUser(userData);
     await new Promise((resolve) => request.logIn(user, resolve));
-    return request.user;
+    return user;
   }
 
   @Post('login')
@@ -71,6 +74,25 @@ export class UserController {
       }
     }
     const updatedUser = await this.userService.updateUser(user.id, userData);
+    return updatedUser;
+  }
+
+  @UseGuards(AuthenticationGuard, RolesGuard)
+  @Roles(UserRole.Buyer)
+  @Put('deposit')
+  async deposit(@Body() depositData: DepositDto, @CurrentUser() user: User) {
+    const deposit = user.deposit + depositData.deposit;
+    const updatedUser = await this.userService.updateUser(user.id, { deposit });
+    return updatedUser;
+  }
+
+  @UseGuards(AuthenticationGuard, RolesGuard)
+  @Roles(UserRole.Buyer)
+  @Put('reset')
+  async resetDeposit(@CurrentUser() user: User) {
+    const updatedUser = await this.userService.updateUser(user.id, {
+      deposit: 0,
+    });
     return updatedUser;
   }
 

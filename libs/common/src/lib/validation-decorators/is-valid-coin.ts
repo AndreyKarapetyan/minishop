@@ -1,19 +1,20 @@
 import { registerDecorator, ValidationOptions } from 'class-validator';
+import { COINS } from '../types';
 
-export function IsMultipleOfFive(property?: string, validationOptions?: ValidationOptions) {
+export function IsValidCoin(property?: string, validationOptions?: ValidationOptions) {
   return function (object: object, propertyName: string) {
     registerDecorator({
-      name: 'isMultipleOfFive',
+      name: 'isValidCoin',
       target: object.constructor,
       propertyName: propertyName,
       constraints: [property],
       options: {
-        message: 'cost must be multiple of five',
+        message: 'You may put only 5, 10, 20, 50 or 100 cents',
         ...validationOptions
       },
       validator: {
         validate(value: unknown) {
-          return value && typeof value === 'number' && value % 5 === 0;
+          return value && typeof value === 'number' && Object.values(COINS).includes(value);
         },
       },
     });

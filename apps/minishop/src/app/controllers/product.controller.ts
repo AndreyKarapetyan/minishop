@@ -4,6 +4,7 @@ import { ProductCreateDto } from '@minishop/common/dtos/product/product-create.d
 import { ProductService } from '@minishop/product/product.service';
 import { ProductUpdateDto } from '@minishop/common/dtos/product/product-update.dto';
 import { Roles } from '../decorators/role.decorator';
+import { PurchaseDto } from '@minishop/common/dtos/purchase.dto';
 import { RolesGuard } from '@minishop/auth/guards/role.guard';
 import { User, UserRole } from '@prisma/client';
 import {
@@ -11,6 +12,7 @@ import {
   Controller,
   Delete,
   Get,
+  NotAcceptableException,
   NotFoundException,
   Param,
   ParseIntPipe,
@@ -39,7 +41,7 @@ export class ProductController {
 
   @UseGuards(AuthenticationGuard, RolesGuard)
   @Roles(UserRole.Seller)
-  @Get(':productId')
+  @Get('id/:productId')
   async getProduct(@Param('productId', ParseIntPipe) productId: number) {
     const product = await this.productService.getProductById(productId);
     if (!product) {
@@ -50,7 +52,7 @@ export class ProductController {
 
   @UseGuards(AuthenticationGuard, RolesGuard)
   @Roles(UserRole.Seller)
-  @Put(':productId')
+  @Put('id/:productId')
   async updateProduct(
     @Param('productId', ParseIntPipe) productId: number,
     @Body() productData: ProductUpdateDto,
@@ -65,6 +67,36 @@ export class ProductController {
       productId
     );
     return updatedProduct;
+  }
+
+  @UseGuards(AuthenticationGuard, RolesGuard)
+  @Roles(UserRole.Buyer)
+  @Put('buy')
+  async buyProduct(
+    @Body() purchaseData: PurchaseDto,
+    @CurrentUser() user: User
+  ) {
+    const { amount, productId } = purchaseData;
+    const product = await this.productService.getProductById(productId);
+    if (!product) {
+      throw new NotFoundException();
+    }
+    if (product.amountAvailable < amount) {
+      throw new NotAcceptableException(
+        'There is no such amount of this product'
+      );
+    }
+    if (user.deposit < amount * product.cost) {
+      throw new NotAcceptableException(
+        "You don't have enough money for the purchase"
+      );
+    }
+    const data = await this.productService.buyProduct(
+      purchaseData,
+      user,
+      product
+    );
+    return data;
   }
 
   @UseGuards(AuthenticationGuard, RolesGuard)
