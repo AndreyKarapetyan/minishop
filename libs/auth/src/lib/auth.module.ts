@@ -3,10 +3,13 @@ import { CommonModule } from '@minishop/common/common.module';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { JwtModule } from '@nestjs/jwt';
 import { JwtStrategy } from './strategies/jwt.strategy';
-import { Module } from '@nestjs/common';
+import { CacheModule, Module } from '@nestjs/common';
 import { PassportModule } from '@nestjs/passport';
 import { RolesGuard } from './guards/role.guard';
 import { UserModule } from '@minishop/user/user.module';
+import ms, { StringValue } from 'ms';
+import * as redisStore from 'cache-manager-redis-store';
+
 
 @Module({
   imports: [
@@ -19,6 +22,12 @@ import { UserModule } from '@minishop/user/user.module';
         expiresIn: process.env.JWT_EXPIRES_IN,
       },
     }),
+    CacheModule.register({
+      ttl: ms(process.env.JWT_EXPIRES_IN as StringValue),
+      store: redisStore,
+      host: 'localhost',
+      port: 6379,
+    })
   ],
   providers: [AuthService, JwtAuthGuard, JwtStrategy, RolesGuard],
   exports: [AuthService, JwtAuthGuard, RolesGuard],

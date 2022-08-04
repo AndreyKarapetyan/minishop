@@ -5,13 +5,17 @@ import { UserService } from '@minishop/user/user.service';
 import { UserLoginDto } from '@minishop/common/dtos/user/user-login.dto';
 import { UserSignupDto } from '@minishop/common/dtos/user/user-signup.dto';
 import {
+  CACHE_MANAGER,
   ConflictException,
+  Inject,
   Injectable,
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { UserUpdateDto } from '@minishop/common/dtos/user/user-update.dto';
 import { DepositDto } from '@minishop/common/dtos/deposit';
+import { Cache } from 'cache-manager';
+import { Request } from 'express';
 
 @Injectable()
 export class AuthService {
@@ -19,11 +23,14 @@ export class AuthService {
 
   constructor(
     private readonly jwtService: JwtService,
-    private readonly userService: UserService
+    private readonly userService: UserService,
+    @Inject(CACHE_MANAGER) private cacheManager: Cache
   ) { }
 
   public async signUp(userData: UserSignupDto) {
-    const existingUser = await this.userService.getUserByUsername(userData.username);
+    const existingUser = await this.userService.getUserByUsername(
+      userData.username
+    );
     if (existingUser) {
       throw new ConflictException('User with this email exists');
     }
@@ -38,6 +45,7 @@ export class AuthService {
     const { accessToken, refreshToken } = this.generateToken({
       userId: user.id.toString(),
     });
+    await this.addToCache(accessToken, user.id);
     delete user.password;
     return {
       user,
@@ -46,13 +54,18 @@ export class AuthService {
     };
   }
 
-  public async updateUser(id: number,
-    userData: Partial<UserUpdateDto & DepositDto>) {
+  public async updateUser(
+    id: number,
+    userData: Partial<UserUpdateDto & DepositDto>
+  ) {
     let hashedPassword: string;
     if (userData.password) {
       hashedPassword = await bcrypt.hash(userData.password, this.saltOrRounds);
     }
-    return this.userService.updateUser(id, { ...userData, password: hashedPassword })
+    return this.userService.updateUser(id, {
+      ...userData,
+      password: hashedPassword,
+    });
   }
 
   public async login(loginData: UserLoginDto) {
@@ -68,12 +81,34 @@ export class AuthService {
     const { accessToken, refreshToken } = this.generateToken({
       userId: user.id.toString(),
     });
+    await this.addToCache(accessToken, user.id);
+    let message = '';
+    const sessions = await this.cacheManager.store.keys(`${user.id}-*`);
+    if (sessions.length > 1) {
+      message = 'There is already an active session using your account';
+    }
     delete user.password;
     return {
       user,
       accessToken,
       refreshToken,
+      message,
     };
+  }
+
+  public async deleteToken(accessToken: string): Promise<void> {
+    const mainKey = await this.cacheManager.get(accessToken);
+    await this.cacheManager.del(accessToken);
+    if (typeof mainKey === 'string') {
+      await this.cacheManager.del(mainKey);
+    }
+  }
+
+  public async deleteAllTokens(userId: number): Promise<void> {
+    const keys = await this.cacheManager.store.keys(`${userId}-*`);
+    for (const key of keys) {
+      await this.cacheManager.del(key);
+    }
   }
 
   public async refreshToken(tokenData: TokenDto) {
@@ -84,6 +119,7 @@ export class AuthService {
       const { accessToken, refreshToken } = this.generateToken({
         userId,
       });
+      await this.addToCache(accessToken, user.id);
       return {
         accessToken,
         refreshToken,
@@ -92,6 +128,16 @@ export class AuthService {
     } catch (e) {
       throw new UnauthorizedException();
     }
+  }
+
+  public getTokenFromRequest(req: Request): string {
+    return req.headers['authorization'].split(' ')[1];
+  }
+
+  private async addToCache(accessToken: string, userId: number): Promise<void> {
+    const mainKey = `${userId}-${Date.now()}`;
+    await this.cacheManager.set(accessToken, mainKey);
+    await this.cacheManager.set(mainKey, true);
   }
 
   private generateToken(payload: { userId: string }) {

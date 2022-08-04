@@ -85,22 +85,23 @@ export class UserController {
   @UseGuards(JwtAuthGuard)
   @Delete('me')
   async deleteMe(@CurrentUser() user: User) {
-    // await this.userService.deleteAllSessions(user.id);
+    await this.authService.deleteAllTokens(user.id);
     await this.userService.deleteUserById(user.id);
     return;
   }
 
-  // @UseGuards(JwtAuthGuard)
-  // @Delete('logout')
-  // async logout(@Req() request: Request) {
-  //   await new Promise((resolve) => request.session.destroy(resolve));
-  //   return;
-  // }
+  @UseGuards(JwtAuthGuard)
+  @Delete('logout')
+  async logout(@Req() request: Request) {
+    const token = this.authService.getTokenFromRequest(request);
+    await this.authService.deleteToken(token);
+    return;
+  }
 
-  // @UseGuards(JwtAuthGuard)
-  // @Delete('logout/all')
-  // async logoutAll(@CurrentUser() user: User) {
-  //   await this.userService.deleteAllSessions(user.id);
-  //   return;
-  // }
+  @UseGuards(JwtAuthGuard)
+  @Delete('logout/all')
+  async logoutAll(@CurrentUser() user: User) {
+    await this.authService.deleteAllTokens(user.id);
+    return;
+  }
 }
