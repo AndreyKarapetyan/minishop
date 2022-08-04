@@ -1,9 +1,13 @@
 import * as bcrypt from 'bcrypt';
+import { Cache } from 'cache-manager';
+import { DepositDto } from '@minishop/common/dtos/deposit';
 import { JwtService } from '@nestjs/jwt';
+import { Request } from 'express';
 import { TokenDto } from '@minishop/common/dtos/token.dto';
-import { UserService } from '@minishop/user/user.service';
 import { UserLoginDto } from '@minishop/common/dtos/user/user-login.dto';
+import { UserService } from '@minishop/user/user.service';
 import { UserSignupDto } from '@minishop/common/dtos/user/user-signup.dto';
+import { UserUpdateDto } from '@minishop/common/dtos/user/user-update.dto';
 import {
   CACHE_MANAGER,
   ConflictException,
@@ -12,10 +16,6 @@ import {
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
-import { UserUpdateDto } from '@minishop/common/dtos/user/user-update.dto';
-import { DepositDto } from '@minishop/common/dtos/deposit';
-import { Cache } from 'cache-manager';
-import { Request } from 'express';
 
 @Injectable()
 export class AuthService {

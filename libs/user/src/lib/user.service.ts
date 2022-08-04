@@ -1,10 +1,10 @@
-import { UserUpdateDto } from '@minishop/common/dtos/user/user-update.dto';
-import { UserSignupDto } from '@minishop/common/dtos/user/user-signup.dto';
-import { PrismaService } from '@minishop/prisma/prisma.service';
-import { Injectable } from '@nestjs/common';
-import { User } from '@prisma/client';
-import { compare, hash } from 'bcrypt';
+import { compare } from 'bcrypt';
 import { DepositDto } from '@minishop/common/dtos/deposit';
+import { Injectable } from '@nestjs/common';
+import { PrismaService } from '@minishop/prisma/prisma.service';
+import { User } from '@prisma/client';
+import { UserSignupDto } from '@minishop/common/dtos/user/user-signup.dto';
+import { UserUpdateDto } from '@minishop/common/dtos/user/user-update.dto';
 
 @Injectable()
 export class UserService {

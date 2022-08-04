@@ -20,12 +20,15 @@ import {
   Put,
   UseGuards,
 } from '@nestjs/common';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Products')
+@UseGuards(JwtAuthGuard, RolesGuard)
+@ApiBearerAuth()
 @Controller('products')
 export class ProductController {
   constructor(private readonly productService: ProductService) { }
 
-  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.Seller)
   @Post()
   async createProduct(
@@ -39,7 +42,6 @@ export class ProductController {
     return product;
   }
 
-  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.Seller)
   @Get('id/:productId')
   async getProduct(@Param('productId', ParseIntPipe) productId: number) {
@@ -50,7 +52,6 @@ export class ProductController {
     return product;
   }
 
-  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.Seller)
   @Put('id/:productId')
   async updateProduct(
@@ -69,7 +70,6 @@ export class ProductController {
     return updatedProduct;
   }
 
-  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.Buyer)
   @Put('buy')
   async buyProduct(
@@ -99,7 +99,6 @@ export class ProductController {
     return data;
   }
 
-  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.Seller)
   @Delete(':productId')
   async deleteProduct(

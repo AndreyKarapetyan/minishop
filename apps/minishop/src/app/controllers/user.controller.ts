@@ -1,6 +1,8 @@
-import { JwtAuthGuard } from '@minishop/auth/guards/jwt-auth.guard';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { AuthService } from '@minishop/auth/services/auth.service';
 import { CurrentUser } from '../decorators/user.decorator';
 import { DepositDto } from '@minishop/common/dtos/deposit';
+import { JwtAuthGuard } from '@minishop/auth/guards/jwt-auth.guard';
 import { Request } from 'express';
 import { Roles } from '../decorators/role.decorator';
 import { RolesGuard } from '@minishop/auth/guards/role.guard';
@@ -15,15 +17,13 @@ import {
   Controller,
   Delete,
   Get,
-  NotAcceptableException,
   Post,
   Put,
   Req,
-  UnauthorizedException,
   UseGuards,
 } from '@nestjs/common';
-import { AuthService } from '@minishop/auth/services/auth.service';
 
+@ApiTags('Users')
 @Controller('users')
 export class UserController {
   constructor(private readonly userService: UserService, private readonly authService: AuthService) { }
@@ -43,12 +43,14 @@ export class UserController {
   }
 
   @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
   @Get('me')
   async getMe(@CurrentUser() user: User) {
     return user;
   }
 
   @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
   @Put('me')
   async updateMe(@Body() userData: UserUpdateDto, @CurrentUser() user: User) {
     if (userData.username && userData.username !== user.username) {
@@ -64,6 +66,7 @@ export class UserController {
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
+  @ApiBearerAuth()
   @Roles(UserRole.Buyer)
   @Put('deposit')
   async deposit(@Body() depositData: DepositDto, @CurrentUser() user: User) {
@@ -73,6 +76,7 @@ export class UserController {
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
+  @ApiBearerAuth()
   @Roles(UserRole.Buyer)
   @Put('reset')
   async resetDeposit(@CurrentUser() user: User) {
@@ -83,6 +87,7 @@ export class UserController {
   }
 
   @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
   @Delete('me')
   async deleteMe(@CurrentUser() user: User) {
     await this.authService.deleteAllTokens(user.id);
@@ -91,6 +96,7 @@ export class UserController {
   }
 
   @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
   @Delete('logout')
   async logout(@Req() request: Request) {
     const token = this.authService.getTokenFromRequest(request);
@@ -99,6 +105,7 @@ export class UserController {
   }
 
   @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
   @Delete('logout/all')
   async logoutAll(@CurrentUser() user: User) {
     await this.authService.deleteAllTokens(user.id);

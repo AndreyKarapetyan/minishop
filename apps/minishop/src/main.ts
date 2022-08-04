@@ -48,7 +48,7 @@ async function bootstrap() {
       .setDescription('Minishop API description')
       .setVersion('1.0')
       .addTag('Minishop')
-      .addCookieAuth()
+      .addBearerAuth()
       .build();
     const document = SwaggerModule.createDocument(app, config);
     SwaggerModule.setup(globalPrefix, app, document, {

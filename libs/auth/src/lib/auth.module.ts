@@ -25,8 +25,8 @@ import * as redisStore from 'cache-manager-redis-store';
     CacheModule.register({
       ttl: ms(process.env.JWT_EXPIRES_IN as StringValue),
       store: redisStore,
-      host: 'localhost',
-      port: 6379,
+      host: process.env.REDIS_HOST,
+      port: process.env.REDIS_PORT,
     })
   ],
   providers: [AuthService, JwtAuthGuard, JwtStrategy, RolesGuard],

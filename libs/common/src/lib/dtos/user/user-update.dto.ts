@@ -1,6 +1,6 @@
 import { UserRole } from '@prisma/client';
 import {
-  IsEnum,
+  IsIn,
   IsOptional,
   IsString,
   MinLength,
@@ -11,7 +11,7 @@ export class UserUpdateDto {
   @IsOptional()
   username?: string;
 
-  @IsEnum(UserRole)
+  @IsIn(Object.values(UserRole))
   @IsOptional()
   role?: UserRole;
 
