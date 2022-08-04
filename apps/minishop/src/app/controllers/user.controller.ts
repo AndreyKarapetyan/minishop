@@ -90,12 +90,12 @@ export class UserController {
     return;
   }
 
-  @UseGuards(JwtAuthGuard)
-  @Delete('logout')
-  async logout(@Req() request: Request) {
-    await new Promise((resolve) => request.session.destroy(resolve));
-    return;
-  }
+  // @UseGuards(JwtAuthGuard)
+  // @Delete('logout')
+  // async logout(@Req() request: Request) {
+  //   await new Promise((resolve) => request.session.destroy(resolve));
+  //   return;
+  // }
 
   // @UseGuards(JwtAuthGuard)
   // @Delete('logout/all')
