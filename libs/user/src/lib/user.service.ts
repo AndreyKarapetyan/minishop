@@ -10,7 +10,7 @@ import { DepositDto } from '@minishop/common/dtos/deposit';
 export class UserService {
   private saltOrRounds = 10;
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
 
   async getUserById(id: number): Promise<User> {
     return this.prisma.user.findUnique({ where: { id } });
@@ -20,14 +20,8 @@ export class UserService {
     return this.prisma.user.findUnique({ where: { username } });
   }
 
-  async createUser(userData: UserSignupDto): Promise<User> {
-    const hashedPassword = await hash(userData.password, this.saltOrRounds);
-    const user = await this.prisma.user.create({
-      data: {
-        ...userData,
-        password: hashedPassword,
-      },
-    });
+  async createUser(data: UserSignupDto): Promise<User> {
+    const user = await this.prisma.user.create({ data });
     delete user.password;
     return user;
   }
@@ -46,42 +40,15 @@ export class UserService {
     id: number,
     userData: Partial<UserUpdateDto & DepositDto>
   ): Promise<User> {
-    let hashedPassword: string;
-    if (userData.password) {
-      hashedPassword = await hash(userData.password, this.saltOrRounds);
-    }
     const updatedUser = await this.prisma.user.update({
       where: { id },
-      data: {
-        ...userData,
-        password: hashedPassword,
-      },
+      data: userData,
     });
     delete updatedUser.password;
     return updatedUser;
   }
 
-  async getNumOfSessions(userId: number): Promise<number> {
-    return this.prisma.session.count({
-      where: {
-        id: {
-          startsWith: `${userId}-`,
-        },
-      },
-    });
-  }
-
   async deleteUserById(id: number): Promise<void> {
     await this.prisma.user.delete({ where: { id } });
-  }
-
-  async deleteAllSessions(userId: number): Promise<void> {
-    await this.prisma.session.deleteMany({
-      where: {
-        id: {
-          startsWith: `${userId}-`,
-        },
-      },
-    });
   }
 }

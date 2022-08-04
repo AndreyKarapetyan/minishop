@@ -27,13 +27,6 @@ model Product {
   productName       String
   amountAvailable   Int
   cost              Int
-  seller            User                  @relation(fields: [sellerId], references: [id])
+  seller            User                  @relation(fields: [sellerId], references: [id], onDelete: Cascade)
   sellerId          Int
-}
-
-model Session {
-  id                String      @id
-  sid               String      @unique
-  data              String      @db.Text
-  expiresAt         DateTime
 }

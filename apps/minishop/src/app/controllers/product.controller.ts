@@ -1,4 +1,4 @@
-import { AuthenticationGuard } from '@minishop/auth/guards/auth.guard';
+import { JwtAuthGuard } from '@minishop/auth/guards/jwt-auth.guard';
 import { CurrentUser } from '../decorators/user.decorator';
 import { ProductCreateDto } from '@minishop/common/dtos/product/product-create.dto';
 import { ProductService } from '@minishop/product/product.service';
@@ -23,9 +23,9 @@ import {
 
 @Controller('products')
 export class ProductController {
-  constructor(private readonly productService: ProductService) {}
+  constructor(private readonly productService: ProductService) { }
 
-  @UseGuards(AuthenticationGuard, RolesGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.Seller)
   @Post()
   async createProduct(
@@ -39,7 +39,7 @@ export class ProductController {
     return product;
   }
 
-  @UseGuards(AuthenticationGuard, RolesGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.Seller)
   @Get('id/:productId')
   async getProduct(@Param('productId', ParseIntPipe) productId: number) {
@@ -50,7 +50,7 @@ export class ProductController {
     return product;
   }
 
-  @UseGuards(AuthenticationGuard, RolesGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.Seller)
   @Put('id/:productId')
   async updateProduct(
@@ -69,7 +69,7 @@ export class ProductController {
     return updatedProduct;
   }
 
-  @UseGuards(AuthenticationGuard, RolesGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.Buyer)
   @Put('buy')
   async buyProduct(
@@ -99,7 +99,7 @@ export class ProductController {
     return data;
   }
 
-  @UseGuards(AuthenticationGuard, RolesGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.Seller)
   @Delete(':productId')
   async deleteProduct(

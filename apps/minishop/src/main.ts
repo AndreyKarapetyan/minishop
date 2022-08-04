@@ -20,27 +20,27 @@ async function bootstrap() {
   app.setGlobalPrefix(globalPrefix);
   app.useGlobalPipes(new ValidationPipe({ transform: true, whitelist: true }));
   app.useGlobalFilters(new AllExceptionFilter());
-  app.use(
-    session({
-      cookie: {
-        httpOnly: true,
-        maxAge: 30 * 24 * 60 * 60 * 1000,
-      },
-      secret: 'secret',
-      resave: false,
-      saveUninitialized: false,
-      genid: (req) => `${req.user ? req.user.id : 0}-${randomString()}`,
-      store: new PrismaSessionStore(
-        new PrismaClient(),
-        {
-          checkPeriod: 30 * 60 * 1000,
-          dbRecordIdIsSessionId: true
-        }
-      )
-    })
-  );
-  app.use(passport.initialize());
-  app.use(passport.session());
+  // app.use(
+  //   session({
+  //     cookie: {
+  //       httpOnly: true,
+  //       maxAge: 30 * 24 * 60 * 60 * 1000,
+  //     },
+  //     secret: 'secret',
+  //     resave: false,
+  //     saveUninitialized: false,
+  //     genid: (req) => `${req.user ? req.user.id : 0}-${randomString()}`,
+  //     store: new PrismaSessionStore(
+  //       new PrismaClient(),
+  //       {
+  //         checkPeriod: 30 * 60 * 1000,
+  //         dbRecordIdIsSessionId: true
+  //       }
+  //     )
+  //   })
+  // );
+  // app.use(passport.initialize());
+  // app.use(passport.session());
   const swaggerEnabled = process.env.SWAGGER_ENABLED === 'enabled';
   if (swaggerEnabled) {
     const config = new DocumentBuilder()
